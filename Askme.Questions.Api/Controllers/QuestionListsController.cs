@@ -44,7 +44,8 @@ public class QuestionListsController : ControllerBase
     public async Task<IActionResult> SaveQuestion(QuestionListModel value)
     {
         await _repositoryQL.StoreAsync(value);
-        return CreatedAtAction(nameof(GetAsync), new { id = value.Id }, value);
+        return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList = value.Id }, value);
+        //return CreatedAtAction("PostAsync", value);
     }
 
     /// <summary>
@@ -55,7 +56,7 @@ public class QuestionListsController : ControllerBase
     [HttpGet("{idQuestionList:length(36)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<QuestionListModel>> GetQuestion(string idQuestionList)
+    public async Task<ActionResult<QuestionListModel>> GetQuestionAsync(string idQuestionList)
     {
         var item = await _repositoryQL.OneAsync(x => x.Id == idQuestionList);
         return item is null ? NotFound() : Ok(item);
