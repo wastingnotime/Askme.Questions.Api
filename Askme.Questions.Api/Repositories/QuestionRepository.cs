@@ -26,9 +26,9 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
-    public Task<IEnumerable<QuestionModel>> AllAsync()
+    public Task<IEnumerable<QuestionModel>> AllAsync(string idQuestionList)
     {
-        return Task.FromResult(_memoryStoreQuestion.AsEnumerable());
+        return Task.FromResult(_memoryStoreQuestion.AsEnumerable().Where(x => x.Id == idQuestionList));
     }
 
     public Task<IEnumerable<QuestionModel>> AllAsync(Func<QuestionModel, bool> predicate)

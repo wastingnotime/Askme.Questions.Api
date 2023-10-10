@@ -26,7 +26,7 @@ public class QuestionListsController : ControllerBase
     #region QuestList
 
     /// <summary>
-    /// Método para retornar a Lista de Questões
+    /// Method used to return QuestionList
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -34,7 +34,7 @@ public class QuestionListsController : ControllerBase
     public Task<IEnumerable<QuestionListModel>> GetAsync() => _repositoryQL.AllAsync();
 
     /// <summary>
-    /// Método para salvar a Lista de Questões
+    /// Method used to save a new QuestionList
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
@@ -44,16 +44,17 @@ public class QuestionListsController : ControllerBase
     public async Task<IActionResult> SaveQuestion(QuestionListModel value)
     {
         await _repositoryQL.StoreAsync(value);
-        return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList = value.Id }, value);
-        //return CreatedAtAction("PostAsync", value);
+        //return CreatedAtAction("Get", new { id = value.Id }, value);
+        return CreatedAtRoute(routeName: "GetA", routeValues: new { idQuestionList = value.Id }, value);
     }
 
     /// <summary>
-    /// Método para obter um item da Lista de Questões
+    /// Method used to get QuestionList
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}")]
+    [HttpGet]
+    [Route(template: "{idQuestionList:length(36)}", Name = "GetA")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<QuestionListModel>> GetQuestionAsync(string idQuestionList)
@@ -63,7 +64,7 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para excluir um item da Lista de Questões
+    /// Method used to delete QuestionList
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -88,10 +89,10 @@ public class QuestionListsController : ControllerBase
 
     [HttpGet("{idQuestionList:length(36)}/questions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public Task<IEnumerable<QuestionModel>> GetAsyncQuestion(string idQuestionList) => _repositoryQ.AllAsync();
+    public Task<IEnumerable<QuestionModel>> GetAsyncQuestion(string idQuestionList) => _repositoryQ.AllAsync(idQuestionList);
 
     /// <summary>
-    /// Método para salvar uma nova questão
+    /// Method used to save a new Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="value"></param>
@@ -102,16 +103,19 @@ public class QuestionListsController : ControllerBase
     public async Task<IActionResult> SaveQuestion(string idQuestionList, QuestionModel value)
     {
         await _repositoryQ.StoreAsync(value);
-        return CreatedAtAction(nameof(GetAsyncQuestion), new { id = value.Id }, value);
+        //return CreatedAtAction(nameof(GetAsyncQuestion), new { id = value.Id }, value);
+        return CreatedAtRoute(routeName: "GetQ", routeValues: new { idQuestionList = idQuestionList , idQuestion = value.Id }, value);
     }
 
     /// <summary>
-    /// Método para obter um item referente a uma lista de questões
+    /// Method used to get a Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
+    //[HttpGet("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
+    [HttpGet]
+    [Route(template: "{idQuestionList:length(36)}/question/{idQuestion:length(36)}", Name = "GetQ")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public Task<ActionResult<QuestionModel>> GetQuestion(string idQuestionList, string idQuestion)
@@ -121,7 +125,7 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para excluir uma questão
+    /// Method used to delete a Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
@@ -142,7 +146,7 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para alterar um questão
+    /// Method used to update a Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
@@ -179,7 +183,7 @@ public class QuestionListsController : ControllerBase
     public Task<IEnumerable<AnswerModel>> GetAsyncAnswer(string idQuestionList, string idQuestion) => _repositoryA.AllAsync();
 
     /// <summary>
-    /// Método para salvar uma nova pergunta
+    /// Method used to save a new Answer
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
@@ -195,7 +199,7 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para excluir uma pergunta
+    /// Method used to delete an Answer
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
@@ -217,13 +221,13 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para altarar uma pergunta
+    /// Method used to update an Answer
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <param name="idAnswer"></param>
     /// <returns></returns>
-    [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")] //Alterar para 36
+    [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -246,7 +250,7 @@ public class QuestionListsController : ControllerBase
     }
 
     /// <summary>
-    /// Método para obter uma pergunta
+    /// Method used to get an Answer
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
