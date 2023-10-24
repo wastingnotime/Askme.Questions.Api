@@ -15,15 +15,15 @@ public class QuestionListControllerTest
         repositoryMockQL
             .Setup(x => x.AllAsync()).ReturnsAsync(Enumerable.Empty<QuestionListModel>());
 
-        var repositoryMockQ = new Mock<IQuestionRepository>();
-        repositoryMockQ
-            .Setup(x => x.AllAsync()).ReturnsAsync(Enumerable.Empty<QuestionModel>());
+        //var repositoryMockQ = new Mock<IQuestionRepository>();
+        //repositoryMockQ
+        //    .Setup(x => x.AllAsync()).ReturnsAsync(Enumerable.Empty<QuestionModel>());
 
-        var repositoryMockA = new Mock<IAnswerRepository>();
-        repositoryMockA
-            .Setup(x => x.AllAsync()).ReturnsAsync(Enumerable.Empty<AnswerModel>());
+        //var repositoryMockA = new Mock<IAnswerRepository>();
+        //repositoryMockA
+        //    .Setup(x => x.AllAsync()).ReturnsAsync(Enumerable.Empty<AnswerModel>());
 
-        var actual = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object, repositoryMockQ.Object, repositoryMockA.Object).GetAsync();
+        var actual = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object).GetQuestionListAsync();
 
         Assert.NotNull(actual);
         Assert.Empty(actual);
@@ -41,41 +41,41 @@ public class QuestionListControllerTest
                     new QuestionListModel { Title = "Lista Questão 3" }
                 });
 
-        var repositoryMockQ = new Mock<IQuestionRepository>();
-        repositoryMockQ
-            .Setup(x => x.AllAsync()).ReturnsAsync(new[]
-                {
-                    new QuestionModel { Title = "Questão 1-1" },
-                    new QuestionModel { Title = "Questão 1-2" },
-                    new QuestionModel { Title = "Questão 1-3" },
-                    new QuestionModel { Title = "Questão 2-1" },
-                    new QuestionModel { Title = "Questão 2-2" },
-                    new QuestionModel { Title = "Questão 2-3" },
-                    new QuestionModel { Title = "Questão 2-4" },
-                    new QuestionModel { Title = "Questão 3-1" }
-                });
+        //var repositoryMockQ = new Mock<IQuestionRepository>();
+        //repositoryMockQ
+        //    .Setup(x => x.AllAsync()).ReturnsAsync(new[]
+        //        {
+        //            new QuestionModel { Title = "Questão 1-1" },
+        //            new QuestionModel { Title = "Questão 1-2" },
+        //            new QuestionModel { Title = "Questão 1-3" },
+        //            new QuestionModel { Title = "Questão 2-1" },
+        //            new QuestionModel { Title = "Questão 2-2" },
+        //            new QuestionModel { Title = "Questão 2-3" },
+        //            new QuestionModel { Title = "Questão 2-4" },
+        //            new QuestionModel { Title = "Questão 3-1" }
+        //        });
 
-        var repositoryMockA = new Mock<IAnswerRepository>();
-        repositoryMockA
-            .Setup(x => x.AllAsync()).ReturnsAsync(new[]
-                {
-                    new AnswerModel { Text = "Resposta 1-1", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 1-2", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 1-3", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 1-4", IsCorrect = true  },
-                    new AnswerModel { Text = "Resposta 1-5", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 2-1", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 2-2", IsCorrect = true  },
-                    new AnswerModel { Text = "Resposta 2-3", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 2-4", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 3-1", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 3-2", IsCorrect = true  },
-                    new AnswerModel { Text = "Resposta 3-3", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 3-4", IsCorrect = false },
-                    new AnswerModel { Text = "Resposta 3-5", IsCorrect = false }
-    });
+        //var repositoryMockA = new Mock<IAnswerRepository>();
+        //repositoryMockA
+        //    .Setup(x => x.AllAsync()).ReturnsAsync(new[]
+        //        {
+        //            new AnswerModel { Text = "Resposta 1-1", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 1-2", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 1-3", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 1-4", IsCorrect = true  },
+        //            new AnswerModel { Text = "Resposta 1-5", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 2-1", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 2-2", IsCorrect = true  },
+        //            new AnswerModel { Text = "Resposta 2-3", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 2-4", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 3-1", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 3-2", IsCorrect = true  },
+        //            new AnswerModel { Text = "Resposta 3-3", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 3-4", IsCorrect = false },
+        //            new AnswerModel { Text = "Resposta 3-5", IsCorrect = false }
+    //});
 
-        var actual = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object, repositoryMockQ.Object, repositoryMockA.Object).GetAsync();
+        var actual = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object).GetQuestionListAsync();
 
         Assert.NotNull(actual);
         Assert.Equal(2, actual.Count());
@@ -87,10 +87,8 @@ public class QuestionListControllerTest
     public async Task Cannot_get_one_questionlists_due_its_nonexistence()
     {
         var repositoryMockQL = new Mock<IQuestionListRepository>();
-        var repositoryMockQ = new Mock<IQuestionRepository>();
-        var repositoryMockA = new Mock<IAnswerRepository>();
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object, repositoryMockQ.Object, repositoryMockA.Object).GetAsync();
+        var result = await new QuestionListsController(GetLoggerStub(), repositoryMockQL.Object).GetQuestionListAsync();
 
         Assert.IsType<NotFoundResult>(result);
     }

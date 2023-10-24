@@ -1,7 +1,11 @@
 ﻿using Askme.Questions.Api.Model;
 using Askme.Questions.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Askme.Questions.Api.Controllers;
 
@@ -10,17 +14,12 @@ namespace Askme.Questions.Api.Controllers;
 public class QuestionListsController : ControllerBase
 {
     private readonly ILogger<QuestionListsController> _logger;
-    private readonly IQuestionListRepository _repositoryQL;
-    private readonly IQuestionRepository _repositoryQ;
-    private readonly IAnswerRepository _repositoryA;
+    private readonly IQuestionListRepository _repository;
 
-    public QuestionListsController(ILogger<QuestionListsController> logger, IQuestionListRepository repositoryQL,
-                                   IQuestionRepository repositoryQ, IAnswerRepository repositoryA)
+    public QuestionListsController(ILogger<QuestionListsController> logger, IQuestionListRepository repository)
     {
         _logger = logger;
-        _repositoryQL = repositoryQL;
-        _repositoryQ = repositoryQ;
-        _repositoryA= repositoryA;
+        _repository = repository;
     }
 
     #region QuestList
@@ -31,7 +30,22 @@ public class QuestionListsController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public Task<IEnumerable<QuestionListModel>> GetAsync() => _repositoryQL.AllAsync();
+    public Task<IEnumerable<QuestionListModel>> GetQuestionListAsync() => _repository.AllAsync();
+
+    /// <summary>
+    /// Method used to get QuestionList
+    /// </summary>
+    /// <param name="idQuestionList"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route(template: "{idQuestionList:length(36)}", Name = "Get")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<QuestionListModel>> GetQuestionListAsync(string idQuestionList)
+    {
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
+        return item is null ? NotFound() : Ok(item);
+    }
 
     /// <summary>
     /// Method used to save a new QuestionList
@@ -39,46 +53,31 @@ public class QuestionListsController : ControllerBase
     /// <param name="value"></param>
     /// <returns></returns>
     [HttpPost]
+    [Route(template: "{idQuestionList:length(36)}", Name = "Get")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveQuestion(QuestionListModel value)
+    public async Task<IActionResult> SaveQuestionListAsync(QuestionListModel value)
     {
-        await _repositoryQL.StoreAsync(value);
-        //return CreatedAtAction("Get", new { id = value.Id }, value);
-        return CreatedAtRoute(routeName: "GetA", routeValues: new { idQuestionList = value.Id }, value);
-    }
-
-    /// <summary>
-    /// Method used to get QuestionList
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    [Route(template: "{idQuestionList:length(36)}", Name = "GetA")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<QuestionListModel>> GetQuestionAsync(string idQuestionList)
-    {
-        var item = await _repositoryQL.OneAsync(x => x.Id == idQuestionList);
-        return item is null ? NotFound() : Ok(item);
+        await _repository.StoreAsync(value);
+        return CreatedAtRoute(routeName: "Get", routeValues: new { idQuestionList = value.Id }, value);
     }
 
     /// <summary>
     /// Method used to delete QuestionList
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="idQuestionList"></param>
     /// <returns></returns>
     [HttpDelete("{idQuestionList:length(36)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteQuestion(string idQuestionList)
+    public async Task<IActionResult> DeleteQuestionListAsync(string idQuestionList)
     {
-        var item = await _repositoryQL.OneAsync(x => x.Id == idQuestionList);
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
         if (item is null)
             return NotFound();
 
-        await _repositoryQL.DeleteAsync(item);
+        await _repository.DeleteAsync(item);
 
         return NoContent();
     }
@@ -87,9 +86,42 @@ public class QuestionListsController : ControllerBase
 
     #region Question
 
+    private IEnumerable<QuestionModel> GetQuestions(string idQuestionList)
+    {
+        var item = _repository.OneAsync(x => x.Id == idQuestionList);
+        return item.Result.Questions;
+    }
+
+    /// <summary>
+    /// Method used to get some Questions
+    /// </summary>
+    /// <param name="idQuestionList"></param>
+    /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}/questions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public Task<IEnumerable<QuestionModel>> GetAsyncQuestion(string idQuestionList) => _repositoryQ.AllAsync(idQuestionList);
+    public async Task<ActionResult> GetQuestionAsync(string idQuestionList)
+    {
+        var item = GetQuestions(idQuestionList);
+        return await Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
+    }
+
+    /// <summary>
+    /// Method used to get a Question
+    /// </summary>
+    /// <param name="idQuestionList"></param>
+    /// <param name="idQuestion"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route(template: "{idQuestionList:length(36)}/question/{idQuestion:length(36)}", Name = "GetQ")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
+    {
+        var questions = GetQuestions(idQuestionList);
+        var item = questions.Where(x => x.Id == idQuestion);
+
+        return await Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
+    }
 
     /// <summary>
     /// Method used to save a new Question
@@ -100,28 +132,19 @@ public class QuestionListsController : ControllerBase
     [HttpPost("{idQuestionList:length(36)}/questions")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveQuestion(string idQuestionList, QuestionModel value)
+    public async Task<IActionResult> SaveQuestionAsync(string idQuestionList, QuestionModel value)
     {
-        await _repositoryQ.StoreAsync(value);
-        //return CreatedAtAction(nameof(GetAsyncQuestion), new { id = value.Id }, value);
-        return CreatedAtRoute(routeName: "GetQ", routeValues: new { idQuestionList = idQuestionList , idQuestion = value.Id }, value);
-    }
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
 
-    /// <summary>
-    /// Method used to get a Question
-    /// </summary>
-    /// <param name="idQuestionList"></param>
-    /// <param name="idQuestion"></param>
-    /// <returns></returns>
-    //[HttpGet("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
-    [HttpGet]
-    [Route(template: "{idQuestionList:length(36)}/question/{idQuestion:length(36)}", Name = "GetQ")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public Task<ActionResult<QuestionModel>> GetQuestion(string idQuestionList, string idQuestion)
-    {
-        var item = GetAsyncQuestion(idQuestionList);
-        return Task.FromResult((ActionResult<QuestionModel>)(item is null ? NotFound() : Ok(item)));
+        if (item is null)
+            return NotFound();
+
+        if (!item.AddQuestion(value))
+            return BadRequest("Erro ao inserir uma nova questão.");
+
+        await _repository.StoreAsync(item);
+
+        return CreatedAtRoute(routeName: "Get", routeValues: new { idQuestionList = idQuestionList, idQuestion = value.Id }, value);
     }
 
     /// <summary>
@@ -134,13 +157,23 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteQuestion(string idQuestionList, string idQuestion)
+    public async Task<IActionResult> DeleteQuestionAsync(string idQuestionList, string idQuestion)
     {
-        var item = await _repositoryQ.OneAsync(x => x.Id == idQuestionList);
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
+
         if (item is null)
             return NotFound();
 
-        await _repositoryQ.DeleteAsync(item);
+        var question = item.GetQuestion(idQuestion);
+
+        if (question is not null)
+        {
+            var assistant = item.Questions.ToList();
+            assistant.Remove(question);
+            item.Questions = assistant;
+
+            await _repository.StoreAsync(item);
+        }
 
         return NoContent();
     }
@@ -156,20 +189,20 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateQuestion(string idQuestionList, string idQuestion, QuestionModel value)
+    public async Task<IActionResult> UpdateQuestionAsync(string idQuestionList, string idQuestion, QuestionModel value)
     {
-        if (!idQuestionList.Equals(value.Id))
-            return ValidationProblem(); //ValidationProblem instead BadRequest to keep standard 
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
 
-        var item = await _repositoryQ.OneAsync(x => x.Id == idQuestionList);
         if (item is null)
             return NotFound();
 
-        //TODO: repo? responsibility
-        item.Id = value.Id;
-        item.Title = value.Title;
+        var question = item.GetQuestion(idQuestion);
 
-        await _repositoryQ.StoreAsync(item);
+        if (question is null)
+            return NotFound();
+
+        question.Title = value.Title;
+        await _repository.StoreAsync(item);
 
         return NoContent();
     }
@@ -178,9 +211,48 @@ public class QuestionListsController : ControllerBase
 
     #region Answer
 
+    private IEnumerable<AnswerModel> GetAnswers(string idQuestionList, string idQuestion)
+    {
+        var questions = GetQuestions(idQuestionList);
+        QuestionModel? item = null;
+
+        if (questions.Any())
+            item = questions.Where(a => a.Id == idQuestion).FirstOrDefault();
+
+        return item.Answers;
+    }
+
+    /// <summary>
+    /// Method used to get some Answers
+    /// </summary>
+    /// <param name="idQuestionList"></param>
+    /// <param name="idQuestion"></param>
+    /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public Task<IEnumerable<AnswerModel>> GetAsyncAnswer(string idQuestionList, string idQuestion) => _repositoryA.AllAsync();
+    public async Task<ActionResult> GetAnswersAsync(string idQuestionList, string idQuestion)
+    {
+        var answers = GetAnswers(idQuestionList, idQuestion);
+        return await Task.FromResult((ActionResult)(!answers.Any() ? NotFound() : Ok(answers)));
+    }
+
+    /// <summary>
+    /// Method used to get an Answer
+    /// </summary>
+    /// <param name="idQuestionList"></param>
+    /// <param name="idQuestion"></param>
+    /// <param name="idAnswer"></param>
+    /// <returns></returns>
+    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> GetAnswerAsync(string idQuestionList, string idQuestion, string idAnswer)
+    {
+        var answers = GetAnswers(idQuestionList, idQuestion);
+        var item = answers.Where(x => x.Id == idAnswer);
+
+        return await Task.FromResult((ActionResult)(item is null ? NotFound() : Ok(item)));
+    }
 
     /// <summary>
     /// Method used to save a new Answer
@@ -192,10 +264,25 @@ public class QuestionListsController : ControllerBase
     [HttpPost("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveAswer(string idQuestionList, string idQuestion, AnswerModel value)
+    public async Task<IActionResult> SaveAswerAsync(string idQuestionList, string idQuestion, AnswerModel value)
     {
-        await _repositoryA.StoreAsync(value);
-        return CreatedAtAction(nameof(GetAsyncQuestion), new { id = value.Id }, value);
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
+
+        if (item is null)
+            return NotFound();
+
+        if (item.Questions is not null)
+        {
+            var question = item.GetQuestion(idQuestion);
+
+            if (question is null)
+                return NotFound();
+
+            question.Answers = question.Answers.Append(value);
+            await _repository.StoreAsync(item);
+        }
+
+        return CreatedAtRoute(routeName: "Get", routeValues: new { idQuestionList = idQuestionList, idQuestion = idQuestion }, value);
     }
 
     /// <summary>
@@ -211,11 +298,29 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAnswer(string idQuestionList, string idQuestion, string idAnswer)
     {
-        var item = await _repositoryA.OneAsync(x => x.Id == idQuestionList);
-        if (item is null)
+        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);        
+
+        if (questionList is null)
             return NotFound();
 
-        await _repositoryA.DeleteAsync(item);
+        var questions = questionList.Questions;
+        var question = questionList.GetQuestion(idQuestion);
+
+        if (question is null)
+            return NotFound();
+
+        var answer = question.GetAnswer(idAnswer);
+
+        if (answer is null)
+            return NotFound();
+
+        //TODO testar com mais respostas
+        var assistant = question.Answers.ToList();
+        assistant.Remove(answer);
+        question.Answers = assistant;
+        questionList.Questions = questions;
+
+        await _repository.StoreAsync(questionList);
 
         return NoContent();
     }
@@ -232,39 +337,29 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAnswer(string idQuestionList, string idQuestion, string idAnswer, AnswerModel value)
-    {        
-        if (!idQuestionList.Equals(value.Id))
-            return ValidationProblem(); //ValidationProblem instead BadRequest to keep standard 
+    {
+        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
 
-        var item = await _repositoryQ.OneAsync(x => x.Id == idQuestionList);
-        if (item is null)
+        if (questionList is null)
             return NotFound();
 
-        //TODO: repo? responsibility
-        item.Id = value.Id;
-        item.Title = value.Text;
+        var question = questionList.GetQuestion(idQuestion);
 
-        await _repositoryQ.StoreAsync(item);
+        if (question is null)
+            return NotFound();
 
-        return NoContent();        
-    }
+        var answer = question.GetAnswer(idAnswer);
 
-    /// <summary>
-    /// Method used to get an Answer
-    /// </summary>
-    /// <param name="idQuestionList"></param>
-    /// <param name="idQuestion"></param>
-    /// <param name="idAnswer"></param>
-    /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public Task<ActionResult<AnswerModel>> GetAnswer(string idQuestionList, string idQuestion, string idAnswer)
-    {
-        var item = GetAsyncAnswer(idQuestionList, idQuestion);
-        return Task.FromResult((ActionResult<AnswerModel>)(item is null ? NotFound() : Ok(item)));
+        if (answer is null)
+            return NotFound();
+
+        answer.Text = value.Text;
+        answer.IsCorrect = value.IsCorrect;
+
+        await _repository.StoreAsync(questionList);
+
+        return NoContent();
     }
 
     #endregion
-
 }
