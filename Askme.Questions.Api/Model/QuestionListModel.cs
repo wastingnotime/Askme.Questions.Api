@@ -22,4 +22,7 @@ public class QuestionListModel
     {
         return this.Questions.Where(x => x.Id == idQuestion).FirstOrDefault();
     }
+
+    public QuestionListModel Clone() =>
+        (QuestionListModel)MemberwiseClone();
 }

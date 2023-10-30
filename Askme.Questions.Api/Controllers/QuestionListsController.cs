@@ -1,11 +1,6 @@
 ﻿using Askme.Questions.Api.Model;
 using Askme.Questions.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Askme.Questions.Api.Controllers;
 
