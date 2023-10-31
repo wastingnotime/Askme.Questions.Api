@@ -33,7 +33,6 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}")]
-    //[Route(template: "{idQuestionList:length(36)}", Name = "Get")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<QuestionListModel>> GetQuestionListAsync(string idQuestionList)
@@ -48,7 +47,6 @@ public class QuestionListsController : ControllerBase
     /// <param name="value"></param>
     /// <returns></returns>
     [HttpPost]
-    //[Route(template: "{idQuestionList:length(36)}", Name = "Get")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SaveQuestionListAsync(QuestionListModel value)
@@ -83,8 +81,9 @@ public class QuestionListsController : ControllerBase
 
     private IEnumerable<QuestionModel> GetQuestions(string idQuestionList)
     {
+        //todo: review
         var item = _repository.OneAsync(x => x.Id == idQuestionList);
-        return item.Result.Questions;
+        return item.Result is null ? Enumerable.Empty<QuestionModel>() : item.Result.Questions;
     }
 
     /// <summary>
@@ -107,7 +106,6 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
-    //[Route(template: "{idQuestionList:length(36)}/question/{idQuestion:length(36)}", Name = "GetQ")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
@@ -161,14 +159,14 @@ public class QuestionListsController : ControllerBase
 
         var question = item.GetQuestion(idQuestion);
 
-        if (question is not null)
-        {
-            var assistant = item.Questions.ToList();
-            assistant.Remove(question);
-            item.Questions = assistant;
+        if (question is null)
+            return NotFound();
 
-            await _repository.StoreAsync(item);
-        }
+        var assistant = item.Questions.ToList();
+        assistant.Remove(question);
+        item.Questions = assistant;
+
+        await _repository.StoreAsync(item);
 
         return NoContent();
     }
@@ -197,6 +195,7 @@ public class QuestionListsController : ControllerBase
             return NotFound();
 
         question.Title = value.Title;
+
         await _repository.StoreAsync(item);
 
         return NoContent();
@@ -205,18 +204,18 @@ public class QuestionListsController : ControllerBase
     #endregion
 
     #region Answer
-    
+
     private IEnumerable<AnswerModel> GetAnswers(string idQuestionList, string idQuestion)
     {
         var questions = GetQuestions(idQuestionList);
         QuestionModel? item = null;
-    
+
         if (questions.Any())
             item = questions.Where(a => a.Id == idQuestion).FirstOrDefault();
-    
+
         return item.Answers;
     }
-    
+
     /// <summary>
     /// Method used to get some Answers
     /// </summary>
@@ -230,7 +229,7 @@ public class QuestionListsController : ControllerBase
         var answers = GetAnswers(idQuestionList, idQuestion);
         return Task.FromResult((ActionResult)(!answers.Any() ? NotFound() : Ok(answers)));
     }
-    
+
     /// <summary>
     /// Method used to get an Answer
     /// </summary>
@@ -245,10 +244,10 @@ public class QuestionListsController : ControllerBase
     {
         var answers = GetAnswers(idQuestionList, idQuestion);
         var item = answers.Where(x => x.Id == idAnswer);
-    
+
         return Task.FromResult((ActionResult)(item is null ? NotFound() : Ok(item)));
     }
-    
+
     /// <summary>
     /// Method used to save a new Answer
     /// </summary>
@@ -262,24 +261,25 @@ public class QuestionListsController : ControllerBase
     public async Task<IActionResult> SaveAswerAsync(string idQuestionList, string idQuestion, AnswerModel value)
     {
         var item = await _repository.OneAsync(x => x.Id == idQuestionList);
-    
+
         if (item is null)
             return NotFound();
-    
-        if (item.Questions is not null)
-        {
-            var question = item.GetQuestion(idQuestion);
-    
-            if (question is null)
-                return NotFound();
-    
-            question.Answers = question.Answers.Append(value);
-            await _repository.StoreAsync(item);
-        }
-    
-        return CreatedAtAction(nameof(GetAnswerAsync),  new { idQuestionList, idQuestion , idAnswer = value.Id}, value);
+
+        if (item.Questions is null)
+            return NotFound();
+
+        var question = item.GetQuestion(idQuestion);
+
+        if (question is null)
+            return NotFound();
+
+        question.Answers = question.Answers.Append(value);
+        
+        await _repository.StoreAsync(item);
+
+        return CreatedAtAction(nameof(GetAnswerAsync), new { idQuestionList, idQuestion, idAnswer = value.Id }, value);
     }
-    
+
     /// <summary>
     /// Method used to delete an Answer
     /// </summary>
@@ -293,33 +293,33 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAnswer(string idQuestionList, string idQuestion, string idAnswer)
     {
-        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);        
-    
+        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
+
         if (questionList is null)
             return NotFound();
-    
+
         var questions = questionList.Questions;
         var question = questionList.GetQuestion(idQuestion);
-    
+
         if (question is null)
             return NotFound();
-    
+
         var answer = question.GetAnswer(idAnswer);
-    
+
         if (answer is null)
             return NotFound();
-    
+
         //TODO testar com mais respostas
         var assistant = question.Answers.ToList();
         assistant.Remove(answer);
         question.Answers = assistant;
         questionList.Questions = questions;
-    
+
         await _repository.StoreAsync(questionList);
-    
+
         return NoContent();
     }
-    
+
     /// <summary>
     /// Method used to update an Answer
     /// </summary>
@@ -331,30 +331,31 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateAnswer(string idQuestionList, string idQuestion, string idAnswer, AnswerModel value)
+    public async Task<IActionResult> UpdateAnswer(string idQuestionList, string idQuestion, string idAnswer,
+        AnswerModel value)
     {
         var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
-    
+
         if (questionList is null)
             return NotFound();
-    
+
         var question = questionList.GetQuestion(idQuestion);
-    
+
         if (question is null)
             return NotFound();
-    
+
         var answer = question.GetAnswer(idAnswer);
-    
+
         if (answer is null)
             return NotFound();
-    
+
         answer.Text = value.Text;
         answer.IsCorrect = value.IsCorrect;
-    
+
         await _repository.StoreAsync(questionList);
-    
+
         return NoContent();
     }
-    
+
     #endregion
 }
