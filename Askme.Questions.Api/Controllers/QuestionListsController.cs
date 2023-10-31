@@ -105,7 +105,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
+    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
@@ -146,7 +146,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpDelete("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
+    [HttpDelete("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,7 +178,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    [HttpPut("{idQuestionList:length(36)}/question/{idQuestion:length(36)}")]
+    [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -209,7 +209,7 @@ public class QuestionListsController : ControllerBase
     {
         var questions = GetQuestions(idQuestionList);
         QuestionModel? item = null;
-
+        //todo: review
         if (questions.Any())
             item = questions.Where(a => a.Id == idQuestion).FirstOrDefault();
 
