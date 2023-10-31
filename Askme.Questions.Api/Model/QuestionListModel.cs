@@ -4,7 +4,7 @@ public class QuestionListModel
 {
     public string? Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     public IEnumerable<QuestionModel> Questions { get; set; } = Enumerable.Empty<QuestionModel>();
 
