@@ -18,9 +18,16 @@ public class QuestionListModel
         return true;
     }
 
-    public QuestionModel GetQuestion(string idQuestion)
+    public QuestionModel? GetQuestion(string idQuestion)
     {
-        return this.Questions.Where(x => x.Id == idQuestion).FirstOrDefault();
+        return this.Questions.FirstOrDefault(x => x.Id == idQuestion);
+    }
+
+    public void RemoveQuestion(QuestionModel question)
+    {
+        var assistant = Questions.ToList();
+        assistant.Remove(question);
+        Questions = assistant;
     }
 
     public QuestionListModel Clone() =>
