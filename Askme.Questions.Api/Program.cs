@@ -9,6 +9,8 @@ builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNa
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddControllers(options=> options.SuppressAsyncSuffixInActionNames=false);
+
 // todo: export to startup.cs
 builder.Services.AddScoped<IQuestionListRepository, QuestionListRepository>();
 
