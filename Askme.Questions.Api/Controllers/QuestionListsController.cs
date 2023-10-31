@@ -253,7 +253,7 @@ public class QuestionListsController : ControllerBase
     [HttpPost("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveAswerAsync(string idQuestionList, string idQuestion, AnswerModel value)
+    public async Task<IActionResult> SaveAnswerAsync(string idQuestionList, string idQuestion, AnswerModel value)
     {
         var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
         if (questionList is null)
@@ -309,6 +309,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <param name="idAnswer"></param>
+    /// <param name="value"></param>
     /// <returns></returns>
     [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
