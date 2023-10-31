@@ -94,10 +94,10 @@ public class QuestionListsController : ControllerBase
     /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}/questions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetQuestionAsync(string idQuestionList)
+    public Task<ActionResult> GetQuestionAsync(string idQuestionList)
     {
         var item = GetQuestions(idQuestionList);
-        return await Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
+        return Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
     }
 
     /// <summary>
@@ -110,12 +110,12 @@ public class QuestionListsController : ControllerBase
     //[Route(template: "{idQuestionList:length(36)}/question/{idQuestion:length(36)}", Name = "GetQ")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
+    public Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
     {
         var questions = GetQuestions(idQuestionList);
         var item = questions.Where(x => x.Id == idQuestion);
 
-        return await Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
+        return Task.FromResult((ActionResult)(!item.Any() ? NotFound() : Ok(item)));
     }
 
     /// <summary>
@@ -225,10 +225,10 @@ public class QuestionListsController : ControllerBase
     /// <returns></returns>
     [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetAnswersAsync(string idQuestionList, string idQuestion)
+    public Task<ActionResult> GetAnswersAsync(string idQuestionList, string idQuestion)
     {
         var answers = GetAnswers(idQuestionList, idQuestion);
-        return await Task.FromResult((ActionResult)(!answers.Any() ? NotFound() : Ok(answers)));
+        return Task.FromResult((ActionResult)(!answers.Any() ? NotFound() : Ok(answers)));
     }
     
     /// <summary>
@@ -241,12 +241,12 @@ public class QuestionListsController : ControllerBase
     [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetAnswerAsync(string idQuestionList, string idQuestion, string idAnswer)
+    public Task<ActionResult> GetAnswerAsync(string idQuestionList, string idQuestion, string idAnswer)
     {
         var answers = GetAnswers(idQuestionList, idQuestion);
         var item = answers.Where(x => x.Id == idAnswer);
     
-        return await Task.FromResult((ActionResult)(item is null ? NotFound() : Ok(item)));
+        return Task.FromResult((ActionResult)(item is null ? NotFound() : Ok(item)));
     }
     
     /// <summary>
