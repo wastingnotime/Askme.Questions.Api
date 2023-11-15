@@ -1,14 +1,19 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Askme.Questions.Api.Model;
 
 public class QuestionModel
 {
-    public string? Id { get; set; } = Guid.NewGuid().ToString();
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
 
     public string? Title { get; set; }
 
     public IEnumerable<AnswerModel> Answers { get; set; } = Enumerable.Empty<AnswerModel>();
 
-    public AnswerModel? GetAnswer(string idAnswer) => 
+    public AnswerModel? GetAnswer(ObjectId idAnswer) => 
         Answers.FirstOrDefault(x => x.Id == idAnswer);
 
     public void DeleteAnswer(AnswerModel model)

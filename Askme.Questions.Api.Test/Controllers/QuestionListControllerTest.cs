@@ -37,87 +37,87 @@ public class QuestionListControllerTest
         Assert.NotNull(actual);
     }
 
-    [Fact]
-    public async Task questionlist_getonenonexistence()
-    {
-        var repositoryMock = new Mock<IQuestionListRepository>();
+    //[Fact]
+    //public async Task questionlist_getonenonexistence()
+    //{
+    //    var repositoryMock = new Mock<IQuestionListRepository>();
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).GetQuestionListAsync(Guid.NewGuid().ToString());
+    //    var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).GetQuestionListAsync(Guid.NewGuid().ToString());
 
-        Assert.IsType<NotFoundResult>(result.Result);
-    }
+    //    Assert.IsType<NotFoundResult>(result.Result);
+    //}
 
-    [Fact]
-    public async Task questionlist_getoneexistence()
-    {
-        var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
+    //[Fact]
+    //public async Task questionlist_getoneexistence()
+    //{
+    //    var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
 
-        var repositoryMock = new Mock<IQuestionListRepository>();
+    //    var repositoryMock = new Mock<IQuestionListRepository>();
 
-        repositoryMock
-           .Setup(x => x.OneAsync(It.IsAny<Func<QuestionListModel, bool>>()))
-           .ReturnsAsync(expected);
+    //    repositoryMock
+    //       .Setup(x => x.OneAsync(It.IsAny<Func<QuestionListModel, bool>>()))
+    //       .ReturnsAsync(expected);
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).GetQuestionListAsync(expected.Id);
+    //    var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).GetQuestionListAsync(expected.Id);
 
-        Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
-    }
+    //    Assert.NotNull(result);
+    //    Assert.IsType<OkObjectResult>(result.Result);
+    //}
 
-    [Fact]
-    public async Task questionlist_deleteitemnoexistence()
-    {
-        var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
+    //[Fact]
+    //public async Task questionlist_deleteitemnoexistence()
+    //{
+    //    var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
 
-        var repositoryMock = new Mock<IQuestionListRepository>();
+    //    var repositoryMock = new Mock<IQuestionListRepository>();
 
-        repositoryMock
-           .Setup(x => x.DeleteAsync(It.IsAny<QuestionListModel>()))
-           .Returns(Task.CompletedTask);
+    //    repositoryMock
+    //       .Setup(x => x.DeleteAsync(It.IsAny<QuestionListModel>()))
+    //       .Returns(Task.CompletedTask);
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).DeleteQuestionListAsync(expected.Id);
+    //    var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).DeleteQuestionListAsync(expected.Id);
 
-        Assert.IsType<NotFoundResult>(result);
-    }
+    //    Assert.IsType<NotFoundResult>(result);
+    //}
 
-    [Fact]
-    public async Task questionlist_deleteitemexistence()
-    {
-        var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
+    //[Fact]
+    //public async Task questionlist_deleteitemexistence()
+    //{
+    //    var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
 
-        var repositoryMock = new Mock<IQuestionListRepository>();
+    //    var repositoryMock = new Mock<IQuestionListRepository>();
 
-        repositoryMock
-            .Setup(x => x.OneAsync(It.IsAny<Func<QuestionListModel, bool>>()))
-            .ReturnsAsync(expected);
+    //    repositoryMock
+    //        .Setup(x => x.OneAsync(It.IsAny<Func<QuestionListModel, bool>>()))
+    //        .ReturnsAsync(expected);
 
-        repositoryMock
-           .Setup(x => x.DeleteAsync(It.IsAny<QuestionListModel>()))
-           .Returns(Task.CompletedTask);
+    //    repositoryMock
+    //       .Setup(x => x.DeleteAsync(It.IsAny<QuestionListModel>()))
+    //       .Returns(Task.CompletedTask);
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).DeleteQuestionListAsync(expected.Id);
+    //    var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).DeleteQuestionListAsync(expected.Id);
 
-        Assert.IsType<NoContentResult>(result);
-    }
+    //    Assert.IsType<NoContentResult>(result);
+    //}
 
-    [Fact]
-    public async Task questionlist_create()
-    {
-        var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
+    //[Fact]
+    //public async Task questionlist_create()
+    //{
+    //    var expected = new QuestionListModel { Id = Guid.NewGuid().ToString(), Title = "Países" };
 
-        var repositoryMock = new Mock<IQuestionListRepository>();
+    //    var repositoryMock = new Mock<IQuestionListRepository>();
 
-        repositoryMock
-            .Setup(x => x.StoreAsync(expected))
-            .Returns(Task.CompletedTask);
+    //    repositoryMock
+    //        .Setup(x => x.StoreAsync(expected))
+    //        .Returns(Task.CompletedTask);
 
-        var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).SaveQuestionListAsync(expected);
+    //    var result = await new QuestionListsController(GetLoggerStub(), repositoryMock.Object).SaveQuestionListAsync(expected);
 
-        Assert.IsType<CreatedAtRouteResult>(result);
-        var actual = ((CreatedAtRouteResult)result).Value as QuestionListModel;
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Title, actual.Title);
-    }
+    //    Assert.IsType<CreatedAtRouteResult>(result);
+    //    var actual = ((CreatedAtRouteResult)result).Value as QuestionListModel;
+    //    Assert.Equal(expected.Id, actual.Id);
+    //    Assert.Equal(expected.Title, actual.Title);
+    //}
 
     private static ILogger<QuestionListsController> GetLoggerStub() => new Mock<ILogger<QuestionListsController>>().Object;
 

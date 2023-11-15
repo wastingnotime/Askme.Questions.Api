@@ -1,12 +1,22 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Askme.Questions.Api.Model;
 
 public class QuestionListModel
 {
-    public string? Id { get; set; } = Guid.NewGuid().ToString();
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
 
     public string? Title { get; set; }
 
     public IEnumerable<QuestionModel> Questions { get; set; } = Enumerable.Empty<QuestionModel>();
+
+    public override string ToString()
+    {
+        return $"{Id}: {Title}";
+    }
 
     public bool AddQuestion(QuestionModel model)
     {

@@ -1,6 +1,8 @@
 ﻿using Askme.Questions.Api.Model;
 using Askme.Questions.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Askme.Questions.Api.Controllers;
 
@@ -33,7 +35,7 @@ public class QuestionListsController : ControllerBase
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}")]
+    [HttpGet("{idQuestionList:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<QuestionListModel>> GetQuestionListAsync(string idQuestionList)
@@ -61,7 +63,7 @@ public class QuestionListsController : ControllerBase
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <returns></returns>
-    [HttpDelete("{idQuestionList:length(36)}")]
+    [HttpDelete("{idQuestionList:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -85,7 +87,7 @@ public class QuestionListsController : ControllerBase
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/questions")]
+    [HttpGet("{idQuestionList:length(24)}/questions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetQuestionAsync(string idQuestionList)
     {
@@ -93,25 +95,26 @@ public class QuestionListsController : ControllerBase
         return questionList is null ? NotFound() : Ok(questionList.Questions);
     }
 
+
     /// <summary>
     /// Method used to get a Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
-    {
-        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
-        if (questionList is null)
-            return NotFound();
+    //[HttpGet("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}")]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //public async Task<ActionResult> GetQuestionAsync(ObjectId idQuestionList, ObjectId idQuestion)
+    //{
+    //    var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
+    //    if (questionList is null)
+    //        return NotFound();
 
-        var question = questionList.GetQuestion(idQuestion);
+    //    var question = questionList.GetQuestion(idQuestion);
 
-        return question is null ? NotFound() : Ok(question);
-    }
+    //    return question is null ? NotFound() : Ok(question);
+    //}
 
     /// <summary>
     /// Method used to save a new Question
@@ -119,30 +122,30 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    [HttpPost("{idQuestionList:length(36)}/questions")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SaveQuestionAsync(string idQuestionList, QuestionModel value)
-    {
-        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
-        if (item is null)
-            return NotFound();
+    //[HttpPost("{idQuestionList:length(24)}/questions")]
+    //[ProducesResponseType(StatusCodes.Status201Created)]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //public async Task<IActionResult> SaveQuestionAsync(ObjectId idQuestionList, QuestionModel value)
+    //{
+    //    var item = await _repository.OneAsync(x => x.Id == idQuestionList);
+    //    if (item is null)
+    //        return NotFound();
 
-        if (!item.AddQuestion(value))
-            return BadRequest("Erro ao inserir uma nova questão.");
+    //    if (!item.AddQuestion(value))
+    //        return BadRequest("Erro ao inserir uma nova questão.");
 
-        await _repository.StoreAsync(item);
+    //    await _repository.StoreAsync(item);
 
-        return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList, idQuestion = value.Id }, value);
-    }
-
+    //    return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList, idQuestion = value.Id }, value);
+    //}
+    /*
     /// <summary>
     /// Method used to delete a Question
     /// </summary>
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpDelete("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
+    [HttpDelete("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -170,7 +173,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}")]
+    [HttpPut("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -190,9 +193,9 @@ public class QuestionListsController : ControllerBase
 
         return NoContent();
     }
-
+    */
     #endregion
-
+    /*
     #region Answer
 
     /// <summary>
@@ -201,7 +204,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
+    [HttpGet("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}/answers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAnswersAsync(string idQuestionList, string idQuestion)
     {
@@ -223,7 +226,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <param name="idAnswer"></param>
     /// <returns></returns>
-    [HttpGet("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
+    [HttpGet("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}/answers/{idAnswer:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> GetAnswerAsync(string idQuestionList, string idQuestion, string idAnswer)
@@ -250,7 +253,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    [HttpPost("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers")]
+    [HttpPost("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}/answers")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SaveAnswerAsync(string idQuestionList, string idQuestion, AnswerModel value)
@@ -277,7 +280,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestion"></param>
     /// <param name="idAnswer"></param>
     /// <returns></returns>
-    [HttpDelete("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
+    [HttpDelete("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}/answers/{idAnswer:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -311,7 +314,7 @@ public class QuestionListsController : ControllerBase
     /// <param name="idAnswer"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    [HttpPut("{idQuestionList:length(36)}/questions/{idQuestion:length(36)}/answers/{idAnswer:length(36)}")]
+    [HttpPut("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}/answers/{idAnswer:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -339,4 +342,5 @@ public class QuestionListsController : ControllerBase
     }
 
     #endregion
+    */
 }
