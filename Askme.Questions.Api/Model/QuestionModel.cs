@@ -7,13 +7,18 @@ public class QuestionModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; }
+    public string? Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
     public string? Title { get; set; }
 
     public IEnumerable<AnswerModel> Answers { get; set; } = Enumerable.Empty<AnswerModel>();
 
-    public AnswerModel? GetAnswer(ObjectId idAnswer) => 
+    public override string ToString()
+    {
+        return $"{Id}: {Title}";
+    }
+
+    public AnswerModel? GetAnswer(string idAnswer) => 
         Answers.FirstOrDefault(x => x.Id == idAnswer);
 
     public void DeleteAnswer(AnswerModel model)

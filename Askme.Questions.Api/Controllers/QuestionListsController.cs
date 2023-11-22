@@ -102,19 +102,19 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="idQuestion"></param>
     /// <returns></returns>
-    //[HttpGet("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //public async Task<ActionResult> GetQuestionAsync(ObjectId idQuestionList, ObjectId idQuestion)
-    //{
-    //    var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
-    //    if (questionList is null)
-    //        return NotFound();
+    [HttpGet("{idQuestionList:length(24)}/questions/{idQuestion:length(24)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> GetQuestionAsync(string idQuestionList, string idQuestion)
+    {
+        var questionList = await _repository.OneAsync(x => x.Id == idQuestionList);
+        if (questionList is null)
+            return NotFound();
 
-    //    var question = questionList.GetQuestion(idQuestion);
+        var question = questionList.GetQuestion(idQuestion);
 
-    //    return question is null ? NotFound() : Ok(question);
-    //}
+        return question is null ? NotFound() : Ok(question);
+    }
 
     /// <summary>
     /// Method used to save a new Question
@@ -122,23 +122,23 @@ public class QuestionListsController : ControllerBase
     /// <param name="idQuestionList"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    //[HttpPost("{idQuestionList:length(24)}/questions")]
-    //[ProducesResponseType(StatusCodes.Status201Created)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //public async Task<IActionResult> SaveQuestionAsync(ObjectId idQuestionList, QuestionModel value)
-    //{
-    //    var item = await _repository.OneAsync(x => x.Id == idQuestionList);
-    //    if (item is null)
-    //        return NotFound();
+    [HttpPost("{idQuestionList:length(24)}/questions")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SaveQuestionAsync(string idQuestionList, QuestionModel value)
+    {
+        var item = await _repository.OneAsync(x => x.Id == idQuestionList);
+        if (item is null)
+            return NotFound();
 
-    //    if (!item.AddQuestion(value))
-    //        return BadRequest("Erro ao inserir uma nova questão.");
+        if (!item.AddQuestion(value))
+            return BadRequest("Erro ao inserir uma nova questão.");
 
-    //    await _repository.StoreAsync(item);
+        await _repository.StoreAsync(item);
 
-    //    return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList, idQuestion = value.Id }, value);
-    //}
-    /*
+        return CreatedAtAction(nameof(GetQuestionAsync), new { idQuestionList, idQuestion = value.Id }, value);
+    }
+   
     /// <summary>
     /// Method used to delete a Question
     /// </summary>
@@ -193,9 +193,9 @@ public class QuestionListsController : ControllerBase
 
         return NoContent();
     }
-    */
+
     #endregion
-    /*
+    
     #region Answer
 
     /// <summary>
@@ -243,7 +243,7 @@ public class QuestionListsController : ControllerBase
         if (answer is null)
             return NotFound();
 
-        return Ok(item);
+        return Ok(answer);
     }
 
     /// <summary>
@@ -342,5 +342,5 @@ public class QuestionListsController : ControllerBase
     }
 
     #endregion
-    */
+   
 }

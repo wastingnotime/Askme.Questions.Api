@@ -113,12 +113,16 @@ public class QuestionListRepository : IQuestionListRepository
         return _collection.AsQueryable().FirstOrDefaultAsync(expr);
     }
 
-    public Task StoreAsync(QuestionListModel value)
+    public async Task StoreAsync(QuestionListModel value)
     {
-        var questionList = new QuestionListModel { Title = value.Title };
-        _collection.InsertOne(questionList);
+        var filter = Builders<QuestionListModel>.Filter.Eq("Id", value.Id);
 
-        return Task.CompletedTask;
+        var existingQuestionList = await _collection.Find(filter).FirstOrDefaultAsync();
+
+        if (existingQuestionList is null)
+            await _collection.InsertOneAsync(value);
+        else
+            await _collection.ReplaceOneAsync(filter, value);
     }
     
     public Task DeleteAsync(QuestionListModel value)
