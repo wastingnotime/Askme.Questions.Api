@@ -1,5 +1,7 @@
 using Askme.Questions.Api.Configuration;
+using Askme.Questions.Api.Model;
 using Askme.Questions.Api.Repositories;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IQuestionListRepository, QuestionListRepository>();
+
+builder.Services.AddTransient<IValidator<QuestionListModel>, ValidationQuestionList>();
 
 var app = builder.Build();
 

@@ -1,8 +1,7 @@
 ﻿using Askme.Questions.Api.Model;
 using Askme.Questions.Api.Repositories;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace Askme.Questions.Api.Controllers;
 
@@ -12,11 +11,14 @@ public class QuestionListsController : ControllerBase
 {
     private readonly ILogger<QuestionListsController> _logger;
     private readonly IQuestionListRepository _repository;
+    private readonly IValidator<QuestionListModel> _questionListValidation;
 
-    public QuestionListsController(ILogger<QuestionListsController> logger, IQuestionListRepository repository)
+    public QuestionListsController(ILogger<QuestionListsController> logger, IQuestionListRepository repository,
+                                   IValidator<QuestionListModel> questionListValidation)
     {
         _logger = logger;
         _repository = repository;
+        _questionListValidation = questionListValidation;
     }
 
     #region QuestList
@@ -54,6 +56,11 @@ public class QuestionListsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SaveQuestionListAsync(QuestionListModel value)
     {
+        var validation = _questionListValidation.Validate(value);
+
+        if (!validation.IsValid)
+            return BadRequest(validation.Errors);
+
         await _repository.StoreAsync(value);
         return CreatedAtAction(nameof(GetQuestionListAsync), new { idQuestionList = value.Id }, value);
     }
